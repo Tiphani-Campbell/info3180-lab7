@@ -7,6 +7,8 @@ This file creates your application.
 
 from app import app
 from flask import render_template, request, jsonify, send_file
+from werkzeug.utils import secure_filename
+from .forms import UploadForm
 import os
 
 
@@ -23,6 +25,27 @@ def index():
 # The functions below should be applicable to all Flask apps.
 ###
 
+@app.route('/api/upload', methods=['POST'])
+def upload():
+    upform = UploadForm()
+    if upform.validate_on_submit():
+        photo = request.form['photo']
+        description = request.form['description']
+
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        forminfo={
+            "message": "File Upload Successful",
+            "filename": filename,
+            "description": description
+        }
+        return jsonify(form_info=forminfo)
+    
+    else:
+        errors = {
+            "errors": form_errors(upform) 
+        }
+        return jsonify(the_errors = errors)
 # Here we define a function to collect form errors from Flask-WTF
 # which we can later use
 def form_errors(form):
