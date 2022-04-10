@@ -39,7 +39,7 @@ def upload():
     
     else:
         
-        return jsonify(the_errors = form_errors(upform))
+        return jsonify(error=form_errors(upform))
 
 @app.route('/api/csrf-token', methods=['GET'])
 def get_csrf():

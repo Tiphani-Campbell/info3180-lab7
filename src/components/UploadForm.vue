@@ -1,4 +1,15 @@
 <template>
+    <div class="upload-message">
+        <div v-if="flag=='true'" class="alert alert-danger" role="alert"> 
+            <ul>
+                <li v-for="error in errors"> {{ error }}</li>
+            </ul>
+        </div>
+        <div v-if="flag=='false'" class="alert alert-success" role="alert">
+            {{message.message}} 
+        </div> 
+    </div>
+
    <form  @submit.prevent="uploadPhoto" id="uploadForm" method = "POST" enctype="multipart/form-data"> 
         <div class="form-group">
                 <label for="description">Description</label>
@@ -17,13 +28,17 @@
 export default{
     data(){
         return{
-            csrf_token: ''
+            csrf_token: '',
+            message: '',
+            errors: [],
+            flag: ''
         };
     },
     methods: {
        uploadPhoto(){
            let uploadForm = document.getElementById('uploadForm');
            let form_data = new FormData(uploadForm);
+           let self = this;
            fetch("/api/upload",{
                method: 'POST',
                body: form_data,
@@ -36,7 +51,14 @@ export default{
            })
            .then(function(data){
                //display a success message
-               console.log(data);
+               self.message = data;
+               if (self.message.hasOwnProperty('error')){
+                   self.errors = self.message.error;
+                   self.flag = 'true';
+               }else{
+                   self.flag = 'false';
+               }
+               
            })
            .catch(function(error){
                console.log(error);
